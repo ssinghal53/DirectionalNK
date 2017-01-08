@@ -563,8 +563,8 @@ public class Configuration {
 	 * @param fitness - fitness value for parent
 	 * @return - probability [0,1] that the parent is able to replicate
 	 */
-	public double getReplicationProbability(float fitness){
-		return Math.abs(maxFit-minFit) > .01 ?  Math.min(1.0F, Math.max(0.0F, (fitness-minFit)/(maxFit-minFit))) : fitness > minFit ? 1.0 : 0.0;
+	public float getReplicationProbability(float fitness){
+		return Math.abs(maxFit-minFit) > .01 ?  Math.min(1.0F, Math.max(0.0F, (fitness-minFit)/(maxFit-minFit))) : fitness > minFit ? 1.0F : 0.0F;
 	}
 
 	/**
