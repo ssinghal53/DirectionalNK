@@ -199,12 +199,12 @@ public class PopulationCounter implements Population {
 		
 		// Replication phase: mutate genes and update population for existing genomes
 		// compute probability of replication
-		double prob = maxPopulation == 0 ? 1.0 : Math.max(0.0, alpha * (1.-(double)populationSize/(double)maxPopulation));
+		float prob = maxPopulation == 0 ? 1.0F : Math.max(0.0F, (float)(alpha * (1.-(double)populationSize/(double)maxPopulation)));
 		workingSet.clear();	// clear the working set
 		Iterator<Integer> iter = genomes.stream().iterator();
 		while(iter.hasNext()){	// collect the off-spring in the working set
 			int g = iter.next();
-			double replProb = config.getReplicationProbability(fitness[g]) * prob;
+			float replProb = config.getReplicationProbability(fitness[g]) * prob;
 			for(int i = 0; i < count[g]; i++){	// for each individual of this genotype
 				// flip a coin to see if it generates offspring
 				if(config.randomFloat() < replProb){
