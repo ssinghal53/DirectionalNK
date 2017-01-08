@@ -1,4 +1,4 @@
-# N-K Model Simulation Version 0.0.3 dated 2016-12-31
+# N-K Model Simulation Version 0.1.0 dated 2017-01-07
 # Copyright (C) 2016  Sonia Singhal
 # This program comes with ABSOLUTELY NO WARRANTY.
 # This is free software, and you are welcome to redistribute it
@@ -34,6 +34,8 @@
 # The following options describe limits on population growth
 -alpha .5							# 0 < alpha < 1 describes the rate of growth
 -mp   100000						# the maximum sustainable population
+-minfit 0.1							# minimum fitness needed to replicate
+-maxfit 0.8							# maximum fitness where prob(replication) = 1 subject to population constraints
 
 # The following options are required by ODV and can be set if -trace=odv. Do not use them elsewhere
 # -cruise experimentName			# name of experiment <20 characters [DEV]
