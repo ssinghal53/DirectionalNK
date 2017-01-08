@@ -22,7 +22,6 @@
 -p 100  							# initial population size [10]
 -r 0.2								# probability of per-bit mutation in multi_random mutation 
 -s 29  								# starting random number seed [32767]
--t fast								# type of simulation {fast|detailed} [fast]
 -v 5								# show progress every v steps [10]
 -trace csv							# generate a simulation trace. By default, no trace is generated [csv|tsv|odv|none] [NONE]
 

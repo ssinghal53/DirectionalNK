@@ -205,15 +205,6 @@ public class Landscape {
 	}
 
 	/**
-	 * Get the value of fitness for a genome for this landscape
-	 * @param g - genome to be evaluated
-	 * @return - fitness value of the genome
-	 */
-	public float getFitness(Genome g) {
-		return getFitness(g.getValue());
-	}
-
-	/**
 	 * Get the fitness of the tallest peak in the landscape
 	 * @return - fitness of the tallest peak. Returns -Float.MAXVALUE if no peaks are available
 	 */
