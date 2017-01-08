@@ -19,8 +19,6 @@ package directional;
  * @author Sharad Singhal
  */
 public enum TraceType {
-	/** Trace file that can be imported into Ocean Data View */
-	ODV,
 	/** Tab-separated file that can be read into Excel or R */
 	TSV,
 	/** Comma-separated file that can be read into Excel or R */

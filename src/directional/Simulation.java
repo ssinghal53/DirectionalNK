@@ -38,16 +38,7 @@ public class Simulation {
 		// get the configuration
 		config = new Configuration(args);
 		// create the initial population
-		switch(config.getType()){
-		case FAST:
-			pop = new PopulationCounter(config);
-			break;
-		case DETAILED:
-			pop = new BinaryPopulation(config);
-			break;
-		default:
-			throw new RuntimeException("Unknown simulation type - "+config.getType());
-		}
+		pop = new PopulationCounter(config);
 		return;
 	}
 	

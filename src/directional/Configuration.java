@@ -73,8 +73,6 @@ public class Configuration {
 	private Vector<Float> shocks = new Vector<Float>();
 	/** Landscape definition */
 	private Landscape landscape,shockLandscape;
-	/** simulation type */
-	private SimulationType type = SimulationType.FAST;
 	/** Mutation probability for mutating a gene in MULTI_RANDOM strategy */
 	private float mutation_probability = (float) 0.1;
 	/** file to read in initial population */
@@ -129,7 +127,6 @@ public class Configuration {
 		if(options.containsKey("k")) K = Integer.parseInt(options.get("k"));
 		if(K >= N) throw new RuntimeException("K must be < "+N+" found "+K);
 		if(options.containsKey("f")) populationFile = options.get("f");
-		if(options.containsKey("t")) type = SimulationType.valueOf(options.get("t").toUpperCase());
 		if(options.containsKey("l")) landscapeFile = options.get("l");
 		if(options.containsKey("p")) initial_population = Integer.parseInt(options.get("p"));
 		if(options.containsKey("g")) max_generations = Integer.parseInt(options.get("g"));
@@ -205,7 +202,6 @@ public class Configuration {
 		System.out.println("\t-p value  : initial population size [10]");
 		System.out.println("\t-r value  : probability of a bit switch in multi-random strategy [0.1]");
 		System.out.println("\t-s value  : starting random number seed [32767]");
-		System.out.println("\t-t value  : simulation type {detailed|fast} [fast]");
 		System.out.println("\t-v value  : show simulation progress every value steps [10]");
 		System.out.println("\t-trace value  : write out a trace of the simulation {TSV|CSV|NONE} [NONE]");
 		System.out.println("\t-a file   : use landscape from file instead of generating a random landscape for shocks [null]");
@@ -351,14 +347,6 @@ public class Configuration {
 	 * *********************************************
 	 */
 	
-	/**
-	 * Get the type of simulation to run
-	 * @return - type of simulation
-	 */
-	public SimulationType getType(){
-		return type;
-	}
-
 	/**
 	 * Get the epistasis strategy to use
 	 * @return - epistasis strategy
