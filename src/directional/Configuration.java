@@ -86,7 +86,7 @@ public class Configuration {
 	/** minimum fitness threshold for replication */
 	private float minFit = 0.0F;
 	/** maximum fitness threshold for replication */
-	private float maxFit = 1.0F;
+	private float maxFit = 0.0F;
 	
 	/** Options from the command line or options file */
 	private HashMap<String,String> options = new HashMap<String,String>();
@@ -140,6 +140,9 @@ public class Configuration {
 		}
 		if(options.containsKey("minfit")) minFit = Float.parseFloat(options.get("minfit"));
 		if(options.containsKey("maxfit")) maxFit = Float.parseFloat(options.get("maxfit"));
+		if(minFit < 0 || maxFit > 1 || minFit > maxFit){
+			throw new RuntimeException("minFit and maxFit must be in the interval [0,1]");
+		}
 		if(options.containsKey("c")){
 			String value[] = options.get("c").split(" ");
 			for(int i = 0; i < value.length; i ++){
@@ -208,7 +211,7 @@ public class Configuration {
 		System.out.println("\t-shocks {[Gen shock] ... } value : Do a shock selection after given generations [null]" );
 		System.out.println("\t-sseed value : random number generator seed for shocks [79]" );
 		System.out.println("\t-minfit value : minimum fitness for replication [0.0]" );
-		System.out.println("\t-maxfit value : maximum fitness for replication [1.0]" );
+		System.out.println("\t-maxfit value : maximum fitness for replication [0.0]" );
 		return;
 	}
 	
@@ -552,7 +555,7 @@ public class Configuration {
 	 * @return - probability [0,1] that the parent is able to replicate
 	 */
 	public float getReplicationProbability(float fitness){
-		return Math.abs(maxFit-minFit) > .01 ?  Math.min(1.0F, Math.max(0.0F, (fitness-minFit)/(maxFit-minFit))) : fitness > minFit ? 1.0F : 0.0F;
+		return fitness >= maxFit ? 1.0F : fitness < minFit ? 0.0F : Math.min(1.0F, Math.max(0.0F, (fitness-minFit)/(maxFit-minFit)));
 	}
 
 	/**
