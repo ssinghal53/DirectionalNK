@@ -204,9 +204,10 @@ public class PopulationCounter implements Population {
 		Iterator<Integer> iter = genomes.stream().iterator();
 		while(iter.hasNext()){	// collect the off-spring in the working set
 			int g = iter.next();
+			double replProb = config.getReplicationProbability(fitness[g]) * prob;
 			for(int i = 0; i < count[g]; i++){	// for each individual of this genotype
 				// flip a coin to see if it generates offspring
-				if(config.randomFloat() < prob){
+				if(config.randomFloat() < replProb){
 					int offspring = mutate(g);
 					float ofit = fitness[offspring] > 0 ? fitness[offspring] : 
 						(fitness[offspring] = landscape.getFitness(offspring));

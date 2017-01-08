@@ -36,9 +36,9 @@ import java.util.Vector;
  */
 public class Configuration {
 	/** Program version */
-	public static final String version = "0.0.3";
+	public static final String version = "0.1.0";
 	/** Program creation date */
-	public static final String creationDate = "2016-12-31";
+	public static final String creationDate = "2017-01-07";
 	public static final String banner = "# N-K Model Simulation Version "+Configuration.version+" dated "+Configuration.creationDate;
 	public static final String copyright = "# Copyright (C) 2016  Sonia Singhal"+
     "\n# This program comes with ABSOLUTELY NO WARRANTY."+
@@ -85,6 +85,11 @@ public class Configuration {
 	private Random random;
 	/** show progress every progress generations on screen */
 	private int progress = 10;
+	/** minimum fitness threshold for replication */
+	private float minFit = 0.0F;
+	/** maximum fitness threshold for replication */
+	private float maxFit = 1.0F;
+	
 	/** Options from the command line or options file */
 	private HashMap<String,String> options = new HashMap<String,String>();
 	
@@ -136,6 +141,8 @@ public class Configuration {
 		if(mutation_probability <= 0. || mutation_probability >= 1.){
 			throw new RuntimeException("Mutation probability must be 0 < r < 1; found "+mutation_probability);
 		}
+		if(options.containsKey("minfit")) minFit = Float.parseFloat(options.get("minfit"));
+		if(options.containsKey("maxfit")) maxFit = Float.parseFloat(options.get("maxfit"));
 		if(options.containsKey("c")){
 			String value[] = options.get("c").split(" ");
 			for(int i = 0; i < value.length; i ++){
@@ -204,6 +211,8 @@ public class Configuration {
 		System.out.println("\t-a file   : use landscape from file instead of generating a random landscape for shocks [null]");
 		System.out.println("\t-shocks {[Gen shock] ... } value : Do a shock selection after given generations [null]" );
 		System.out.println("\t-sseed value : random number generator seed for shocks [79]" );
+		System.out.println("\t-minfit value : minimum fitness for replication [0.0]" );
+		System.out.println("\t-maxfit value : maximum fitness for replication [1.0]" );
 		return;
 	}
 	
@@ -548,6 +557,14 @@ public class Configuration {
 			System.out.println("*Warning* - Shock  "+shock+" at generation "+generation+" > maximum peak ("+shockLandscape.getMaxPeak()+") in the shock landscape");
 		}
 		return shock;
+	}
+	/**
+	 * Get the replication probability at a given fitness value
+	 * @param fitness - fitness value for parent
+	 * @return - probability [0,1] that the parent is able to replicate
+	 */
+	public double getReplicationProbability(float fitness){
+		return Math.abs(maxFit-minFit) > .01 ?  Math.min(1.0F, Math.max(0.0F, (fitness-minFit)/(maxFit-minFit))) : fitness > minFit ? 1.0 : 0.0;
 	}
 
 	/**
