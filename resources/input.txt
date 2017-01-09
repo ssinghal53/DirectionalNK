@@ -23,7 +23,7 @@
 -r 0.2								# probability of per-bit mutation in multi_random mutation 
 -s 29  								# starting random number seed [32767]
 -v 5								# show progress every v steps [10]
--trace csv							# generate a simulation trace. By default, no trace is generated [csv|tsv|odv|none] [NONE]
+-trace csv							# generate a simulation trace. By default, no trace is generated [csv|tsv|none] [NONE]
 
 # The following options describe shocks given to the population during the simulation
 -shocks {20 .5 30 .8}				# shock values [null] (0.5 after replication/selection at gen 20, .8 at gen 30)
@@ -35,13 +35,5 @@
 -mp   100000						# the maximum sustainable population
 -minfit 0.1							# minimum fitness needed to replicate  [0.0]
 -maxfit 0.8							# maximum fitness where prob(replication) = 1 subject to population constraints [0.0]
-
-# The following options are required by ODV and can be set if -trace=odv. Do not use them elsewhere
-# -cruise experimentName			# name of experiment <20 characters [DEV]
-# -station runName					# name of run <20 characters [DEV0]
-# -type type						# type of odv data set [C]
-# -latitude 0.0					    # latitude of station [0.0]
-# -longitude 0.0				    # longitude of station [0.0]
-# -author name						# name of author
 
 
