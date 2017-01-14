@@ -48,7 +48,7 @@ public class Simulation {
 	public void runSimulation(){
 		// write out the landscapes
 		config.getLandscape().writeLandscape(config.getFileName("land-"));
-		config.getShockLandscape().writeLandscape(config.getFileName("sland-"));
+		if (config.getShockState()) config.getShockLandscape().writeLandscape(config.getFileName("sland-"));
 		// open trace file to write the simulation statistics
 		String statsFile = config.getFileName("stats-");
 		// report progress on stdout every progress generations

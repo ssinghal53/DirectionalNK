@@ -71,6 +71,8 @@ public class Configuration {
 	private Vector<Float> cutoffs = new Vector<Float>();
 	/** shock values */
 	private Vector<Float> shocks = new Vector<Float>();
+	/** boolean to determine whether shocks apply */
+	private boolean doShock = false;
 	/** Landscape definition */
 	private Landscape landscape,shockLandscape;
 	/** Mutation probability for mutating a gene in MULTI_RANDOM strategy */
@@ -151,7 +153,7 @@ public class Configuration {
 		}
 		
 		// generate the evolution landscape
-		shockLandscape = landscape = new Landscape(this);
+		landscape = new Landscape(this);
 		// ensure that we have a default cutoff value
 		if(cutoffs.isEmpty()) cutoffs.add((float) 0.5);
 		
@@ -165,6 +167,7 @@ public class Configuration {
 		
 		// generate the shock landscape
 		if(!shocks.isEmpty()){
+			doShock = true;
 			if(options.containsKey("a")){
 				// if a file is given, use it. If it is generated, it will have peaks computed
 				shockLandscape = new Landscape(getN(),getK(),getEpistasis(),sseed,options.get("a"),true);
@@ -403,7 +406,11 @@ public class Configuration {
 	 * @return - landscape for giving shocks
 	 */
 	public Landscape getShockLandscape(){
-		return shockLandscape;
+		if(doShock) return shockLandscape;
+		else{
+			System.out.println("*Warning* - No shock landscape generated. Returning original landscape.");
+			return landscape;
+		}
 	}
 	
 	/**
@@ -568,5 +575,13 @@ public class Configuration {
 
 	public double getAlpha() {
 		return options.containsKey("alpha") ? Double.valueOf(options.get("alpha")) : 0;
+	}
+	
+	/**
+	 * Get the status of whether or not shocks have been established.
+	 * @return true if shocks are established, otherwise false.
+	 */
+	public boolean getShockState(){
+		return doShock;
 	}
 }
