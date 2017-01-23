@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Iterator;
 
@@ -42,6 +43,8 @@ public class PopulationCounter implements Population {
 	private BitSet workingSet;
 	/** array containing genome counts in population. Indexed by genome value */
 	private int count[];
+	/** count of offspring during replication */
+	private int offSpringCount[];
 	/** fitness values of the genomes. Indexed by genome value */
 	private float fitness[];
 	/** Genome size in bits */
@@ -74,6 +77,7 @@ public class PopulationCounter implements Population {
 		genomes = new BitSet(maxGenomes);
 		workingSet = new BitSet(maxGenomes);
 		count = new int[maxGenomes];
+		offSpringCount = new int[maxGenomes];
 		fitness = new float[maxGenomes];
 		Landscape landscape = config.getLandscape();
 		// note we read landscapes before population, to allow computation of fitness
@@ -199,8 +203,9 @@ public class PopulationCounter implements Population {
 		
 		// Replication phase: mutate genes and update population for existing genomes
 		// compute probability of replication
-		float prob = maxPopulation == 0 ? 1.0F : Math.max(0.0F, (float)(alpha * (1.-(double)populationSize/(double)maxPopulation)));
+		float prob = maxPopulation == 0 ? 1.0F : Math.max(0.0F, Math.min(1.0F,(float)(alpha * (1.-(double)populationSize/(double)maxPopulation))));
 		workingSet.clear();	// clear the working set
+		Arrays.fill(offSpringCount,0);	// reset offspring counts
 		Iterator<Integer> iter = genomes.stream().iterator();
 		while(iter.hasNext()){	// collect the off-spring in the working set
 			int g = iter.next();
@@ -213,7 +218,7 @@ public class PopulationCounter implements Population {
 						(fitness[offspring] = landscape.getFitness(offspring));
 					// if the offspring would survive the selection phase, add it to the population
 					if(ofit >= cutoff){
-						count[offspring]++;	
+						offSpringCount[offspring]++;	
 						if(!genomes.get(offspring)) workingSet.set(offspring);
 					}
 				}
@@ -221,7 +226,9 @@ public class PopulationCounter implements Population {
 		}
 		// mark the new offspring in the genome population
 		genomes.or(workingSet);
-
+		for(int i= 0; i < maxGenomes; i++){
+			count[i] += offSpringCount[i];
+		}
 		// Selection phase: remove any genes that fall below the cutoff. 
 		workingSet.clear();
 		iter = genomes.stream().iterator();
