@@ -116,7 +116,7 @@ public class Landscape {
 			// create the fitness table
 			for(int i = 0; i < N; i++){
 				for(int j = 0; j < kMax; j++){
-					fitness_table[j][i] = random != null ? random.nextFloat() : (float) (Math.random()*Float.MAX_VALUE);;
+					fitness_table[j][i] = random != null ? random.nextFloat() : (float) Math.random();
 				}
 			}
 			// locate all peaks in the landscape
@@ -234,6 +234,14 @@ public class Landscape {
 	 */
 	public HashMap<Integer,Float> getPeaks(){
 		return peaks;
+	}
+	
+	/**
+	 * Get the maximum genome value possible for this landscape. Values [0,maxGenome) are valid genome values
+	 * @return - return the maximum genome value
+	 */
+	public int getMaxGenome(){
+		return maxGenomes;
 	}
 
 	/**
