@@ -346,7 +346,7 @@ public class Landscape {
 				inp.close();
 				return true;
 			} catch (IOException e) {
-				System.out.println(e.toString());
+				System.out.println(e.getLocalizedMessage());
 			}
 		}
 		return false;
