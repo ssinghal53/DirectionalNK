@@ -89,6 +89,8 @@ public class Configuration {
 	private float minFit = 0.0F;
 	/** maximum fitness threshold for replication */
 	private float maxFit = 0.0F;
+	/** correlation coefficient to create a correlated shock landscape */
+	private float rho = 0.0F;
 	
 	/** Options from the command line or options file */
 	private HashMap<String,String> options = new HashMap<String,String>();
@@ -163,6 +165,7 @@ public class Configuration {
 			for(int i = 0; i < value.length; i++){
 				shocks.add(Float.valueOf(value[i].trim()));
 			}
+			if(options.containsKey("rho")) rho = Float.parseFloat(options.get("rho"));
 		}
 		
 		// generate the shock landscape
@@ -170,10 +173,14 @@ public class Configuration {
 			doShock = true;
 			if(options.containsKey("a")){
 				// if a file is given, use it. If it is generated, it will have peaks computed
-				shockLandscape = new Landscape(getN(),getK(),getEpistasis(),sseed,options.get("a"),true);
+				shockLandscape = options.containsKey("rho") ?
+						new Landscape(landscape,rho,sseed,options.get("a")) 
+						: new Landscape(getN(),getK(),getEpistasis(),sseed,options.get("a"),true);
 			} else {
 				// create a random landscape for the shocks. Don't bother computing peaks
-				shockLandscape = new Landscape(getN(),getK(),getEpistasis(),sseed,null,false);
+				shockLandscape = options.containsKey("rho") ? 
+						new Landscape(landscape,rho,sseed,null) 
+						: new Landscape(getN(),getK(),getEpistasis(),sseed,null,false);
 			}
 		}
 		// if debug, print out the options
@@ -213,6 +220,7 @@ public class Configuration {
 		System.out.println("\t-a file   : use landscape from file instead of generating a random landscape for shocks [null]");
 		System.out.println("\t-shocks {[Gen shock] ... } value : Do a shock selection after given generations [null]" );
 		System.out.println("\t-sseed value : random number generator seed for shocks [79]" );
+		System.out.println("\t-rho value : correlation coefficient for correlated shock landscape [0]" );
 		System.out.println("\t-minfit value : minimum fitness for replication [0.0]" );
 		System.out.println("\t-maxfit value : maximum fitness for replication [0.0]" );
 		return;
