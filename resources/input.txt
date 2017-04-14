@@ -29,7 +29,7 @@
 -shocks {20 .5 30 .8}				# shock values [null] (0.5 after replication/selection at gen 20, .8 at gen 30)
 -a resources/shock-landscape.txt	# Landscape to use for shocks [if not given, a random landscape is used]
 -sseed 39							# Seed to be used for generating the shock landscape [79]
--rho 0								# correlation coefficient to generate shock landscape. If 0 or not present, an independent landscape is created
+# -rho 0								# correlation coefficient to generate shock landscape. If 0 or not present, an independent landscape is created
 
 # The following options describe limits on population growth
 -alpha .5							# 0 < alpha < 1 describes the rate of growth
