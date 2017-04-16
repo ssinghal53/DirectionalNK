@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2016, Sonia Singhal
+ * Copyright (C) 2016, 2017 Sonia Singhal
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -44,17 +44,23 @@ public class PopulationCounter implements Population {
 	/** array containing genome counts in population. Indexed by genome value */
 	private int count[];
 	/** count of offspring during replication */
-	private int offSpringCount[];
+	private int offspringCount[];
 	/** fitness values of the genomes. Indexed by genome value */
 	private float fitness[];
+	/** fitness values of the genomes under the shock landscape. Indexed by genome value */
+	private float shockFitness[];
 	/** Genome size in bits */
 	private int N;
 	/** Trace writer to write the simulation trace to a file */
 	private TraceWriter writer = null;
 	/** average fitness for the population */
 	private double average;
+	/** average fitness for the population under shocks */
+	private double shockAverage;
 	/** standard deviation for the population */
 	private double stdev;
+	/** standard deviation for the population under shocks */
+	private double shockStDev;
 	/** shannon diversity for the population */
 	private double diversity;
 	/** maximum population size limit */
@@ -63,6 +69,12 @@ public class PopulationCounter implements Population {
 	private double alpha;
 	/** current population size */
 	private int populationSize;
+	/** evenness of population */
+	private double even;
+	/** Replication Landscape being used */
+	private Landscape landscape;
+	/** Shock landscape being used */
+	private Landscape shockLandscape;
 	
 	/**
 	 * Create a population counter
@@ -77,10 +89,12 @@ public class PopulationCounter implements Population {
 		genomes = new BitSet(maxGenomes);
 		workingSet = new BitSet(maxGenomes);
 		count = new int[maxGenomes];
-		offSpringCount = new int[maxGenomes];
+		offspringCount = new int[maxGenomes];
 		fitness = new float[maxGenomes];
-		Landscape landscape = config.getLandscape();
+		shockFitness = new float[maxGenomes];
+		landscape = config.getLandscape();
 		// note we read landscapes before population, to allow computation of fitness
+		shockLandscape = config.getShockLandscape();
 		String populationFile = config.getPopulationFile();
 		if(populationFile == null || !readPopulation()){
 			// if no population file given, or if we could not read it, create an initial random population
@@ -89,6 +103,7 @@ public class PopulationCounter implements Population {
 				genomes.set(val);
 				count[val]++;
 				fitness[val] = landscape.getFitness(val);
+				shockFitness[val] = shockLandscape.getFitness(val);
 			}
 			// if populationFile was given, and we were not able to read it, create it
 			if(populationFile != null){
@@ -102,35 +117,44 @@ public class PopulationCounter implements Population {
 	}
 
 	/**
-	 * Compute the population statistics for the current population
+	 * Compute the population statistics for the current population generation
 	 */
 	private void computeStatistics(){
+		// compute the current population size
 		populationSize = 0;
 		Iterator<Integer> iter = genomes.stream().iterator();
 		while(iter.hasNext()){
 			int g = iter.next();
 			populationSize += count[g];
 		}
+		// if everyone is extinct, no stats can be obtained
 		if(populationSize == 0) {
-			average = stdev = diversity = -1;
+			average = shockAverage = stdev = shockStDev = diversity = even = -1;
 			return;
 		}
-		
+		// compute the descriptive statistics
 		double size = populationSize;
 		double n = uniqueGenomes();
 		double sum = 0, sumA = 0, sumOfSquares = 0;
+		double shockSumA = 0, shockSumOfSquares = 0;
 		double denom = Math.log(size);
 		iter = genomes.stream().iterator();
 		while(iter.hasNext()){
-			int g = iter.next();
-			double f = fitness[g] * count[g];
+			int genome = iter.next();
+			double f = fitness[genome] * count[genome];			// sum of fitness for all genomes with this value on replication landscape
+			double sf = shockFitness[genome] * count[genome];	// sum of fitness for all genomes with this value on shock landscape
 			sumA += f;
-			sumOfSquares += f * f;
-			sum += count[g] * (Math.log(count[g])-denom);		// sum pi * ln(pi); where pi = count[i]/size
+			shockSumA += sf;
+			sumOfSquares += fitness[genome] * f;				// sum of fitness^2 for all genomes with this value
+			shockSumOfSquares += shockFitness[genome] * sf;
+			sum += count[genome] * (Math.log(count[genome])-denom);		// sum pi * ln(pi); where pi = count[i]/uniques	
 		}
 		diversity = -sum/size;
+		even = diversity / Math.log(n);
 		average = sumA/size;
-		stdev = Math.sqrt((n*sumOfSquares - sumA * sumA))/n;
+		stdev = Math.sqrt((sumOfSquares - sumA * sumA / size)/(size-1));
+		shockAverage = shockSumA/size;
+		shockStDev = Math.sqrt((shockSumOfSquares - shockSumA * shockSumA / size)/(size-1));
 		return;
 	}
 	
@@ -166,6 +190,15 @@ public class PopulationCounter implements Population {
 	public double getShannonDiversity() {
 		return diversity;
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see directional.Population#getEvenness()
+	 */
+	@Override
+	public double getEvenness(){
+		return even;
+	}
 
 	/* (non-Javadoc)
 	 * @see jnk.Population#getAverageFitness()
@@ -173,6 +206,14 @@ public class PopulationCounter implements Population {
 	@Override
 	public double getAverageFitness() {
 		return average;
+	}
+	/*
+	 * (non-Javadoc)
+	 * @see directional.Population#getAverageShockFitness()
+	 */
+	@Override
+	public double getAverageShockFitness(){
+		return shockAverage;
 	}
 
 	/* (non-Javadoc)
@@ -182,7 +223,45 @@ public class PopulationCounter implements Population {
 	public double getStandardDeviation() {
 		return stdev;
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * @see directional.Population#getShockStDev()
+	 */
+	@Override
+	public double getShockStDev(){
+		return shockStDev;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see directional.Population#getMaxFit()
+	 */
+	@Override
+	public float getMaxFit(){
+		float maxFit = 0;
+		for(int i = 0; i < maxGenomes; i++){
+			if(maxFit < fitness[i]) maxFit = fitness[i];
+		}
+		return maxFit;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see directional.Population#getMaxShockFit()
+	 */
+	@Override
+	public float getMaxShockFit(){
+		float maxShockFit = 0;
+		Iterator<Integer> iter = genomes.stream().iterator();
+		while(iter.hasNext()){
+			int g = iter.next();
+			float sfit = shockFitness[g];
+			if(maxShockFit < sfit) maxShockFit = sfit;
+		}
+		return maxShockFit;
+	}
+	
 	/* (non-Javadoc)
 	 * @see jnk.Population#advance()
 	 */
@@ -195,30 +274,31 @@ public class PopulationCounter implements Population {
 		}
 		// increment the generation counter
 		generation++;
-		float cutoff = config.getCutoff(generation);	// fitness cutoff for this generation
-		Landscape landscape = config.getLandscape();	// landscape for this generation
+		float cutoff = config.getCutoff(generation);	// replication fitness cutoff for this generation
 		
 		// Recall that Java does not let us modify the bitset while we are iterating on it,
 		// so we must use two different bitsets
 		
 		// Replication phase: mutate genes and update population for existing genomes
 		// compute probability of replication
-		float prob = maxPopulation == 0 ? 1.0F : Math.max(0.0F, Math.min(1.0F,(float)(alpha * (1.-(double)populationSize/(double)maxPopulation))));
+		float prob = maxPopulation == 0 ? 1.0F : Math.max(0.0F, Math.min(1.0F, (float)(alpha * (1.-(double)populationSize/(double)maxPopulation))));
 		workingSet.clear();	// clear the working set
-		Arrays.fill(offSpringCount,0);	// reset offspring counts
+		Arrays.fill(offspringCount, 0);	// reset the offspring counts
 		Iterator<Integer> iter = genomes.stream().iterator();
 		while(iter.hasNext()){	// collect the off-spring in the working set
 			int g = iter.next();
 			float replProb = config.getReplicationProbability(fitness[g]) * prob;
-			for(int i = 0; i < count[g]; i++){	// for each individual of this genotype
+			int imax = count[g];
+			for(int i = 0; i < imax; i++){	// for each individual of this genotype
 				// flip a coin to see if it generates offspring
 				if(config.randomFloat() < replProb){
 					int offspring = mutate(g);
 					float ofit = fitness[offspring] > 0 ? fitness[offspring] : 
 						(fitness[offspring] = landscape.getFitness(offspring));
+					if(shockFitness[offspring] == 0) shockFitness[offspring] = shockLandscape.getFitness(offspring);
 					// if the offspring would survive the selection phase, add it to the population
 					if(ofit >= cutoff){
-						offSpringCount[offspring]++;	
+						offspringCount[offspring]++;	
 						if(!genomes.get(offspring)) workingSet.set(offspring);
 					}
 				}
@@ -227,7 +307,7 @@ public class PopulationCounter implements Population {
 		// mark the new offspring in the genome population
 		genomes.or(workingSet);
 		for(int i= 0; i < maxGenomes; i++){
-			count[i] += offSpringCount[i];
+			count[i] += offspringCount[i];
 		}
 		// Selection phase: remove any genes that fall below the cutoff. 
 		workingSet.clear();
@@ -249,7 +329,7 @@ public class PopulationCounter implements Population {
 
 		// At this point, we have gone through selection; write out the trace
 		if(writer != null){
-			writer.write(generation, genomes, count, fitness, cutoff);
+			writer.write(generation, genomes, count, fitness, cutoff, shockFitness, 0.0F);
 		}				
 		return true;
 	}
@@ -263,15 +343,13 @@ public class PopulationCounter implements Population {
 		if(shock < 0) return true;	// nothing affected
 		System.out.println("Generation - "+generation+" Shock "+shock);
 		
-		// note that the shock landscape can be different from replication, so all fitness values have to be computed
-		Landscape shockScape = config.getShockLandscape();
-		
 		// we just have a selection phase for the shocks
 		workingSet.clear();
 		Iterator<Integer> iter = genomes.stream().iterator();
 		while(iter.hasNext()){	// collect genes in the working set
 			int g = iter.next();
-			if(shockScape.getFitness(g) < shock){
+			//if(shockLandscape.getFitness(g) < shock){
+			if(shockFitness[g] < shock){
 				workingSet.set(g);	// this genome will not survive
 				count[g] = 0;		// set its count to zero
 			}
@@ -287,7 +365,7 @@ public class PopulationCounter implements Population {
 
 		// At this point, we have gone through shock selection; write out the trace
 		if(writer != null){
-			writer.write(generation, genomes, count, fitness,(float)0.0,shock);
+			writer.write(generation, genomes, count, fitness,(float)0.0,shockFitness,shock);
 		}
 		return true;
 	}
@@ -319,7 +397,7 @@ public class PopulationCounter implements Population {
 		}
 		throw new RuntimeException("PopulationCounter: "+config.getMutationStrategy()+" not yet implemented");
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see jnk.Population#writePopulation()
 	 */
@@ -339,11 +417,12 @@ public class PopulationCounter implements Population {
 			PrintStream out = new PrintStream(new File(outputFile));
 			out.println(Configuration.banner);
 			out.println("# Created "+ZonedDateTime.now().toString());
-			out.println("# genome count");
+			out.println("# N = "+N+", K = "+config.getK()+", seed = "+config.getSeed()+", shockseed = "+config.getSseed());
+			out.println("# gen genome count fitness shockfitness");
 			Iterator<Integer> iter = genomes.stream().iterator();
 			while(iter.hasNext()){
 				int g = iter.next();
-				out.println(String.format("%d %d", g,count[g]));
+				out.println(String.format("%d %d %d %f %f", generation, g,count[g], fitness[g], shockFitness[g]));
 			}
 			out.close();
 		} catch (FileNotFoundException e) {
@@ -359,20 +438,31 @@ public class PopulationCounter implements Population {
 	public boolean readPopulation() {
 		String populationFile = config.getPopulationFile();
 		Landscape landscape = config.getLandscape();
+		Landscape shockLandscape = config.getShockLandscape();
 		try {
 			BufferedReader inp = new BufferedReader(new InputStreamReader(new FileInputStream(new File(populationFile))));
 			String line;
 			while((line = inp.readLine()) != null){
 				if(line.isEmpty() || line.startsWith("#")) continue;
 				String [] parts = line.split(" ");
-				if(parts.length != 2){
+				if(parts.length < 2){
 					inp.close();
-					throw new IOException("Unable to read population file "+populationFile+" Expected 2 values found "+parts.length);
+					throw new IOException("Unable to read population file "+populationFile+" Expected at least 2 values found "+parts.length);
+				} else if(parts.length == 2){
+					// have genome count
+					int g = Integer.valueOf(parts[0]);
+					genomes.set(g);
+					count[g] = Integer.valueOf(parts[1]);
+					fitness[g] = landscape.getFitness(g);
+					shockFitness[g] = shockLandscape.getFitness(g);
+				} else {
+					// have generation genome count fitness shockfitness
+					int g = Integer.valueOf(parts[1]);
+					genomes.set(g);
+					count[g] = Integer.valueOf(parts[2]);
+					fitness[g] = landscape.getFitness(g);
+					shockFitness[g] = shockLandscape.getFitness(g);
 				}
-				int g = Integer.valueOf(parts[0]);
-				genomes.set(g);
-				count[g] = Integer.valueOf(parts[1]);
-				fitness[g] = landscape.getFitness(g);
 			}
 			inp.close();
 			return true;
@@ -399,7 +489,7 @@ public class PopulationCounter implements Population {
 		if(config.hasOption("trace")){
 			writer = TraceWriter.getWriter(config);
 			status =  writer.open();
-			if(status) writer.write(generation, genomes, count, fitness, config.getCutoff(generation));
+			if(status) writer.write(generation, genomes, count, fitness, config.getCutoff(generation), shockFitness, 0.0F);
 		}
 		return status;
 	}

@@ -25,10 +25,17 @@ import java.util.Iterator;
  * @author Sharad Singhal
  */
 public class TraceWriter {
+	/** trace writer to be used simulation wide */
 	private static TraceWriter writer = null;
+	/** print stream to be used simulation wide */
 	private PrintStream writerStream = null;
+	/** Simulation configuration */
 	private Configuration config;
+	/** format for writing a trace line */
 	private String format = null;
+	/** Trace header */
+	private String header = null;
+	/** Trace type */
 	private TraceType traceType;
 	/**
 	 * Create Trace writer
@@ -38,10 +45,12 @@ public class TraceWriter {
 		traceType = config.hasOption("trace") ? TraceType.valueOf(config.getOption("trace").toUpperCase()) : TraceType.NONE;
 		switch(traceType){
 		case TSV:
-			format = "%d\t%d\t%d\t%9.6f\t%9.6f\t\t";
+			format = "%d\t%d\t%d\t%9.6f\t%9.6f\t%9.6f\t%9.6f";
+			header = "Generation\tGenome\tCount\tFitness\tCutoff\tshock\tshockFitness";
 			break;
 		case CSV:
-			format = "%d,%d,%d,%9.6f,%9.6f,,";
+			format = "%d,%d,%d,%9.6f,%9.6f,%9.6f,%9.6f";
+			header = "Generation,Genome,Count,Fitness,Cutoff,shock,shockFitness";
 			break;
 		case NONE:
 		default:
@@ -51,7 +60,7 @@ public class TraceWriter {
 	}
 
 	/**
-	 * Get an ODV Writer
+	 * Get an Trace Writer
 	 * @param config - Simulation configuration
 	 * @return - an ODV Spreadsheet writer if defined in the configuration, else null
 	 */
@@ -85,12 +94,12 @@ public class TraceWriter {
 				writerStream = null;
 				return false;
 			}
-			writeHeader();
+			writerStream.println(header);
 			return true;
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Close the traceWriter, and free resources
 	 */
@@ -103,71 +112,23 @@ public class TraceWriter {
 	}
 
 	/**
-	 * Write the current state of the simulation in the trace file
-	 * @param generation - current simulation generation
-	 * @param genomes - Bitset containing currently active genomes
-	 * @param count	- count of each genome in the population
-	 * @param fitness - fitness for each genome
-	 * @param cutoff - cutoff for this generation
+	 * Write out the trace values at the current generation
+	 * @param generation - current generation
+	 * @param genomes - bitset containing the genomes
+	 * @param count - array giving the count values for the genomes
+	 * @param fitness - genome fitness on the replication landscape
+	 * @param cutoff - replication cutoff value
+	 * @param shockFitness - array giving fitness on the shock landscape
+	 * @param shock - current shock value
 	 */
-	public void write(int generation, BitSet genomes, int count[], float fitness [],float cutoff){
+	public void write(int generation, BitSet genomes, int[] count, float[] fitness, float cutoff, float [] shockFitness, float shock) {
 		switch(traceType){
 		case TSV:
 		case CSV:
 			Iterator<Integer> iter = genomes.stream().iterator();
 			while(iter.hasNext()){
 				int g = iter.next();
-				writerStream.println(String.format(format,generation,g,count[g],fitness[g],cutoff));	
-			}
-			break;
-		case NONE:
-		default:
-			break;
-		}
-		return;
-	}
-
-	/**
-	 * Write the header for the trace
-	 */
-	private void writeHeader(){
-		switch(traceType){
-		case TSV:
-			writerStream.println("Generation\tGenome\tCount\tFitness\tCutoff\tshock\tshockFitness");
-			break;
-		case CSV:
-			writerStream.println("Generation,Genome,Count,Fitness,Cutoff,shock,shockFitness");
-			break;
-		case NONE:
-		default:
-			break;
-		}
-		return;
-	}
-
-	/**
-	 * @param generation - generation after which a shock is being given
-	 * @param genomes - genomes surviving the shock
-	 * @param count - count of genomes
-	 * @param fitness - fitness of the genomes on the normal landscape
-	 * @param cutoff - cutoff for this generation, if any
-	 * @param shock - value of the shock given, if any
-	 */
-	public void write(int generation, BitSet genomes, int[] count, float[] fitness, float cutoff, float shock) {
-		Landscape shockLandscape = config.getShockLandscape();
-		switch(traceType){
-		case TSV:
-			Iterator<Integer> iter = genomes.stream().iterator();
-			while(iter.hasNext()){
-				int g = iter.next();
-				writerStream.println(String.format("%d\t%d\t%d\t%9.6f\t%9.6f\t%9.6f\t%9.6f",generation,g,count[g],fitness[g],cutoff,shock,shockLandscape.getFitness(g)));	
-			}
-			break;
-		case CSV:
-			iter = genomes.stream().iterator();
-			while(iter.hasNext()){
-				int g = iter.next();
-				writerStream.println(String.format("%d,%d,%d,%9.6f,%9.6f,%9.6f,%9.6f",generation,g,count[g],fitness[g],cutoff,shock,shockLandscape.getFitness(g)));	
+				writerStream.println(String.format(format,generation,g,count[g],fitness[g],cutoff,shockFitness[g],shock));	
 			}
 			break;
 		case NONE:

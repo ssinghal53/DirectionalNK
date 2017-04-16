@@ -91,4 +91,14 @@ public interface Population {
 	 */
 	public void close();
 
+	double getEvenness();
+
+	double getAverageShockFitness();
+
+	double getShockStDev();
+
+	float getMaxFit();
+
+	float getMaxShockFit();
+
 }

@@ -19,6 +19,8 @@ package directional;
  * @author Sharad Singhal
  */
 public enum Epistasis {
+	/** Each loci is dependent on the K adjacent loci */
 	ADJACENT,
+	/** Each loci is dependent on K other loci chosen randomly */
 	RANDOM
 }

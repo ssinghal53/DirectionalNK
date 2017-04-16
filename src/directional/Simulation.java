@@ -49,21 +49,27 @@ public class Simulation {
 		// write out the landscapes
 		config.getLandscape().writeLandscape(config.getFileName("land-"));
 		if (config.getShockState()) config.getShockLandscape().writeLandscape(config.getFileName("sland-"));
-		// open trace file to write the simulation statistics
+		
+		// open stats file to write the simulation statistics
 		String statsFile = config.getFileName("stats-");
 		// report progress on stdout every progress generations
 		int progress = config.progressIndicator();
 		try {
-			// open the population for writing traces
+			// open the population for writing simulation trace
 			pop.open();
+			// open the stats file
 			out = new PrintStream(new File(statsFile));
-			out.println("gen population uniques average stdev diversity cutoff");
+			out.println("gen population uniques average stdev diversity evenness max cutoff shockAvg shockStd shockMax shockCut"); //header for file
 
 			// run through the population
-			if(progress > 0) System.out.println("gen   population uniques   average  stdev diversity cutoff");
+			if(progress > 0) System.out.println("gen   population uniques   average  stdev diversity evenness cutoff"); //header for console
 			int maxGenerations = config.getMaxGenerations();
 			writeStats();	// write the initial population statistics
 			while(pop.getGeneration() <= maxGenerations){
+				// Check whether population is likely to go extinct this round; if so, write it out.
+				if(config.getShock(pop.getGeneration()+1) > pop.getMaxShockFit() || config.getCutoff(pop.getGeneration()+1) > pop.getMaxFit()){
+					pop.writePopulation();
+				}
 				// advance the population (replicate then select)
 				if(!pop.advance()){
 					System.out.println("No individuals in population after Generation "+pop.getGeneration());
@@ -79,7 +85,7 @@ public class Simulation {
 				writeStats();
 			}
 			// write the population remaining at the end of the simulation
-			pop.writePopulation();
+			if(pop.populationSize() > 0) pop.writePopulation();
 		} catch (FileNotFoundException e) {
 			// should not happen
 			System.out.println(e.toString());
@@ -100,12 +106,19 @@ public class Simulation {
 		double af = pop.getAverageFitness();
 		double sd = pop.getStandardDeviation();
 		double div = pop.getShannonDiversity();
+		double ev = pop.getEvenness();
 		double cut = config.getCutoff(generation);
+		double maxfit = pop.getMaxFit();
+		double asf = pop.getAverageShockFitness();
+		double ssd = pop.getShockStDev();
+		double smax = pop.getMaxShockFit();
+		double scut = config.getShock(generation);
+		if(scut < 0) scut = 0;
 		int progress = config.progressIndicator();
 		if(progress > 0 && generation % progress == 0){
-			System.out.println(String.format("%4d %8d %8d %9.3f %9.3f %9.3f %6.2f",generation,size,unique,af,sd,div,cut));
+				System.out.println(String.format("%4d %8d %8d %9.3f %9.3f %9.3f %9.3f %6.2f %6.2f",generation,size,unique,af,sd,div,ev,cut,maxfit)); //console print
 		}
-		out.println(String.format("%4d %8d %8d %9.3f %9.3f %9.3f %6.2f",generation,size,unique,af,sd,div,cut));
+		out.println(String.format("%4d %8d %8d %9.3f %9.3f %9.3f %9.3f %6.2f %6.2f %9.3f %9.3f %9.3f %6.2f",generation,size,unique,af,sd,div,ev,maxfit,cut,asf,ssd,smax,scut)); //file print
 		return;
 	}
 	

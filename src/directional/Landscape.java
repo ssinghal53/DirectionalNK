@@ -449,12 +449,4 @@ public class Landscape {
 		System.out.println("Done "+landscapeFile+" in "+time+" ms");
 		return;
 	}
-	
-	/**
-	 * Get the maximum genome value possible for this landscape. Values [0,maxGenome) are valid genome values
-	 * @return - return the maximum genome value
-	 */
-	public int getMaxGenome() {
-		return maxGenomes;
-	}
 }
