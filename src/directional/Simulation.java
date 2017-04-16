@@ -62,7 +62,7 @@ public class Simulation {
 			out.println("gen population uniques average stdev diversity evenness max cutoff shockAvg shockStd shockMax shockCut"); //header for file
 
 			// run through the population
-			if(progress > 0) System.out.println("gen   population uniques   average  stdev diversity evenness cutoff"); //header for console
+			if(progress > 0) System.out.println("gen   population uniques   average  stdev diversity evenness cutoff maxFit"); //header for console
 			int maxGenerations = config.getMaxGenerations();
 			writeStats();	// write the initial population statistics
 			while(pop.getGeneration() <= maxGenerations){
