@@ -139,6 +139,52 @@ public class Landscape {
 				config.getLandscapeFile(),true);
 		return;
 	}
+	
+	/**
+	 * Create a landscape correlated with an original landscape
+	 * @param orig - original landscape to use as the template
+	 * @param rho - correlation coefficient -1 <= rho <= 1
+	 * @param seed - random number seed for this landscape, if any
+	 * @param landscapeFile - if given, generated landscape is written to this file
+	 */
+	public Landscape(Landscape orig, float rho, long seed, String landscapeFile){
+		if(rho < -1 || rho > 1) throw new RuntimeException("alpha must be -1 <= alpha <= 1. Found "+rho);
+		this.landscapeFile = landscapeFile;
+		// replicate N, K, and epistasis table from the original landscape
+		this.N = orig.N;
+		this.K = orig.K;
+		maxGenomes = orig.maxGenomes;
+		kMax = orig.kMax;
+		random = seed != 0 ? new Random(seed) : new Random();
+		epistasis_locations = new int[N][K+1];
+		fitness_table = new float[kMax][N];
+		if(landscapeFile == null || !readLandscape()){
+			for(int i = 0; i < N; i++){
+				for(int j=0; j < K+1; j++){
+					epistasis_locations[i][j] = orig.epistasis_locations[i][j];
+				}
+			}
+			// create the fitness table for the correlated landscape
+			// we currently treat the numbers in the table as a sequence. Can also use a correlation matrix if
+			// more complex relations are needed. See https://www.sitmo.com/?p=720 for examples
+			float beta = (float) Math.sqrt(1.-rho * rho);
+			for(int i = 0; i < N; i++){
+				for(int j = 0; j < kMax; j++){
+					fitness_table[j][i] = rho * orig.fitness_table[j][i] + beta * random.nextFloat();
+				}
+			}
+			// if the original has peaks located, locate them
+			if(orig.getMaxPeak() > 0){
+				locatePeaks();
+			}
+			// if landscape file was defined, write it out
+			if(landscapeFile != null){
+				writeLandscape(landscapeFile);
+			}
+		}
+		return;
+	}
+
 
 	/**
 	 * Locate all peaks in this landscape.
@@ -243,7 +289,7 @@ public class Landscape {
 	public int getMaxGenome(){
 		return maxGenomes;
 	}
-
+	
 	/**
 	 * Write out the landscape values to a file
 	 */
@@ -360,6 +406,7 @@ public class Landscape {
 	 * -L fileName - name of the landscape file<br>
 	 * -s seed - random number generator seed<br>
 	 * -e [random | adjacent] - epistasis type<br>
+	 * -f [true | false] - locate fitness peaks if true<br>
 	 */
 	public static void main(String[] args) {
 		// show help and exit if program called with -h
