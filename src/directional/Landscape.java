@@ -84,11 +84,8 @@ public class Landscape {
 			case ADJACENT:
 				// epistasis values contain current gene (i) and K nearest neighbors
 				for(int i = 0; i < N; i++){
-					for(int j = 0; j < K/2; j++){
+					for(int j = 0; j <= K; j++){
 						epistasis_locations[i][j] = (i+j-K/2+N) % N;
-					}
-					for(int j = K/2 ; j <= K; j++){
-						epistasis_locations[i][j] = ((i+j-K/2+N) % N);
 					}
 				}
 				break;
@@ -194,21 +191,21 @@ public class Landscape {
 		BitSet candidateSet = new BitSet(maxGenomes);
 		float[] fitness = new float[maxGenomes];
 		// search through all candidates, and mark those that are NOT peaks
-		for(int i = 0; i < maxGenomes; i++){
-			if(candidateSet.get(i)) continue;	// already tested earlier as not a peak; no need to search further
-			float ifit = fitness[i] = getFitness(i);
+		for(int candidate = 0; candidate < maxGenomes; candidate++){
+			if(candidateSet.get(candidate)) continue;	// already tested earlier as not a peak; no need to search further
+			float candidateFitness = fitness[candidate] = getFitness(candidate);
 			int mask = 1;
 			// search candidates that are 1 Hamming distance away from this candidate
 			// note that there are exactly N such candidates
 			for(int j = 0; j < N; j++){
-				int neighbor = i ^ mask;
+				int neighbor = candidate ^ mask;
 				float neighborFit = fitness[neighbor] > 0 ? fitness[neighbor] : (fitness[neighbor] = getFitness(neighbor));
-				if(neighborFit > ifit){
-					// at least one neighbor is higher, mark us and continue to the next candidate
-					candidateSet.set(i);
+				if(neighborFit > candidateFitness){
+					// at least one neighbor is higher, mark candidate as not a peak and continue to the next candidate
+					candidateSet.set(candidate);
 					break;
-				} else if(neighborFit < ifit && !candidateSet.get(neighbor)){
-					// the neighbor is NOT a peak, and was not already marked, mark it
+				} else if(neighborFit < candidateFitness && !candidateSet.get(neighbor)){
+					// the neighbor is NOT a peak, and was not already marked, mark the neighbor as not a peak
 					candidateSet.set(neighbor);
 				} 
 				mask <<= 1;
