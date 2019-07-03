@@ -198,7 +198,8 @@ public class Landscape {
 			// search candidates that are 1 Hamming distance away from this candidate
 			// note that there are exactly N such candidates
 			for(int j = 0; j < N; j++){
-				int neighbor = candidate ^ mask;
+				// flip the bit in the candidate corresponding to the 1-bit in the mask
+				int neighbor = ((candidate & mask) != 0) ? candidate & ~mask : candidate | mask;
 				float neighborFit = fitness[neighbor] > 0 ? fitness[neighbor] : (fitness[neighbor] = getFitness(neighbor));
 				if(neighborFit > candidateFitness){
 					// at least one neighbor is higher, mark candidate as not a peak and continue to the next candidate
