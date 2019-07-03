@@ -152,14 +152,18 @@ public class TunableLandscape {
 			// search candidates that are 1 Hamming distance away from this candidate
 			// note that there are exactly N such candidates
 			for(int j = 0; j < N; j++){
+				// int neighbor = candidate ^ mask;
 				int neighbor = ((candidate & mask) != 0) ? candidate & ~mask : candidate | mask;
+				// System.out.println(j+" "+Integer.toBinaryString(candidate)+" "+Integer.toBinaryString(neighbor));
 				float neighborFit = fitness[neighbor] > 0 ? fitness[neighbor] : (fitness[neighbor] = getFitness(neighbor));
 				if(neighborFit > candidateFitness){
-					// at least one neighbor is higher, mark candidate as not a peak and continue to the next candidate
+					// at least one neighbor is higher, mark candidate as not a peak,
+					// and continue to the next candidate
 					candidateSet.set(candidate);
 					break;
 				} else if(neighborFit < candidateFitness && !candidateSet.get(neighbor)){
-					// the neighbor is NOT a peak, and was not already marked, mark the neighbor as not a peak
+					// the neighbor is NOT a peak, and was not already marked, mark the neighbor as not a peak,
+					// and continue searching for neighbors of this candidate
 					candidateSet.set(neighbor);
 				} 
 				mask <<= 1;

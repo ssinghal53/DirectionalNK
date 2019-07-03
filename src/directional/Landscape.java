@@ -202,11 +202,13 @@ public class Landscape {
 				int neighbor = ((candidate & mask) != 0) ? candidate & ~mask : candidate | mask;
 				float neighborFit = fitness[neighbor] > 0 ? fitness[neighbor] : (fitness[neighbor] = getFitness(neighbor));
 				if(neighborFit > candidateFitness){
-					// at least one neighbor is higher, mark candidate as not a peak and continue to the next candidate
+					// at least one neighbor is higher, mark candidate as not a peak,
+					// and continue to the next candidate
 					candidateSet.set(candidate);
 					break;
 				} else if(neighborFit < candidateFitness && !candidateSet.get(neighbor)){
-					// the neighbor is NOT a peak, and was not already marked, mark the neighbor as not a peak
+					// the neighbor is NOT a peak, and was not already marked, mark the neighbor as not a peak,
+					// and continue searching for neighbors of this candidate
 					candidateSet.set(neighbor);
 				} 
 				mask <<= 1;
