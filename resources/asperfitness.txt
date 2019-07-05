@@ -3,13 +3,11 @@
 # Am. Nat. 2009. Vol. 174, pp. S15–S30.  2009 by The University of Chicago. 0003-0147/2009/1740S1-50586$15.00. All rights reserved.
 # DOI: 10.1086/599081
 #
-#
 # Gene is coded as (left to right in chromosomal order) olvA1/fwnA1, argH12, pyrA5, leuA1, pheA1, lysD25, oliC2, crnB12
 # where 0 indicates no mutation, and 1 indicates mutation in the chromosome
 # Table of Gene and fitness See Table 1 on Page S18
+# duplicates have been removed, and group CS1 and CS2 merged below
 #
-N 8
-# Group CS1
 00000000 1.0
 01000000 .878
 00100000 .835
@@ -42,40 +40,20 @@ N 8
 01010011 .692
 00110011 .643
 01110011 .645
-
-# Group CS2. Note that there are duplicates from CS 1 here
-# TODO: Locate and eliminate the duplicates
-01000000 .878
-00100000 .835
-00010000 .870
 00001000 .909
-00000010 .772
-01100000 .865
-01010000 .854
 01001000 .923
-01000010 .773
-00110000 .816
 00101000 .852
-00100010 .716
 00011000 .855
 00010010 .778
 00001010 .785
-01110000 .816
 01101000 .879
-01100010 .748
 01011000 .942
-01010010 .749
 01001010 .795
 00111000 .858
-00110010 .617
 00101010 .724
 00011010 .745
 01111000 .825
-01110010 .690
 01101010 .665
 01011010 .686
 00111010 .640
 01111010 .622
-
-
-
