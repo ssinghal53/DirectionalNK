@@ -8,7 +8,7 @@
 # Table of Gene and fitness See Table 1 on Page S18
 # duplicates have been removed, and group CS1 and CS2 merged below. Chromosomes in [] do not mutate, so are not present below,
 # resulting in N = 6 in the model
-# Group 1
+# Group 1 includes mutations in arg,pyr,leu,oli,crn
 #   ||
 000000 1.0
 100000 .878
@@ -43,7 +43,7 @@
 011011 .643
 111011 .645
 # Group 2
-#  ||
+#  || includes mutations in arg,pyr,leu,phe,oli
 000100 .909
 100100 .923
 010100 .852
