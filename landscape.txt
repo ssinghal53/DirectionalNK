@@ -1,0 +1,15 @@
+# N-K Model Simulation Version 0.2.0 dated 2017-01-07 last modified 2017-04-15
+# File: landscape.txt created 2019-07-10T15:24:51.038-07:00[America/Los_Angeles]
+# N = 6, K = 0
+# Epistasis Locations[N][K+1]:
+ 0
+ 1
+ 2
+ 3
+ 4
+ 5
+# Fitness Table[pow(2,K+1)][N]:
+0.477723 0.288240 0.126126 0.657836 0.606802 0.331263 
+0.495613 0.614535 0.530738 0.211273 0.095101 0.154327 
+# Fitness Peaks 1
+7 0.539465

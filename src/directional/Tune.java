@@ -20,7 +20,8 @@ package directional;
  */
 public class Tune {
 	/**
-	 * @param args
+	 * Test program for a tunable landscape
+	 * @param args - program arguments
 	 */
 	public static void main(String[] args) {
 		int N = 4;

@@ -129,7 +129,8 @@ public class TunableLandscape {
 	}
 
 	/**
-	 * Create a landscape from a configuration
+	 * Create a tunable landscape
+	 * @param config - configuration for the landscape
 	 */
 	public TunableLandscape(Configuration config) {
 		this(config.getN(),config.getK(),config.getEpistasis(),config.hasOption("s") ? Long.valueOf(config.getOption("s")) : 0L,
@@ -249,14 +250,15 @@ public class TunableLandscape {
 	
 	/**
 	 * Get all peaks available for this landscape
-	 * @return - Map containing genome <genome,peakheight>
+	 * @return - Map containing genome {genome,peakheight}
 	 */
 	public HashMap<Integer,Float> getPeaks(){
 		return peaks;
 	}
 
 	/**
-	 * Write out the landscape values to a file
+	 * Write out the landscape to a file
+	 * @param fileName - name of the file
 	 */
 	public void writeLandscape(String fileName){
 		try {
