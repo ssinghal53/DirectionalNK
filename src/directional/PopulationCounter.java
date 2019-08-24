@@ -78,6 +78,7 @@ public class PopulationCounter implements Population {
 	
 	/**
 	 * Create a population counter
+	 * @param config - Configuration to use
 	 */
 	public PopulationCounter(Configuration config) {
 		this.config = config;

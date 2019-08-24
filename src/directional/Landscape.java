@@ -130,6 +130,7 @@ public class Landscape {
 
 	/**
 	 * Create a landscape from a configuration
+	 * @param config - configuration containing information for the landscape
 	 */
 	public Landscape(Configuration config) {
 		this(config.getN(),config.getK(),config.getEpistasis(),config.hasOption("s") ? Long.valueOf(config.getOption("s")) : 0L,
@@ -140,7 +141,7 @@ public class Landscape {
 	/**
 	 * Create a landscape correlated with an original landscape
 	 * @param orig - original landscape to use as the template
-	 * @param rho - correlation coefficient -1 <= rho <= 1
+	 * @param rho - correlation coefficient -1 &lt;= rho &lt;= 1
 	 * @param seed - random number seed for this landscape, if any
 	 * @param landscapeFile - if given, generated landscape is written to this file
 	 */
@@ -276,14 +277,15 @@ public class Landscape {
 	
 	/**
 	 * Get all peaks available for this landscape
-	 * @return - Map containing genome <genome,peakheight>
+	 * @return - Map containing genome {genome,peakheight}
 	 */
 	public HashMap<Integer,Float> getPeaks(){
 		return peaks;
 	}
 
 	/**
-	 * Write out the landscape values to a file
+	 * Write out the landscape to a file
+	 * @param fileName - name of the file
 	 */
 	public void writeLandscape(String fileName){
 		try {
