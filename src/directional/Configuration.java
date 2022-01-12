@@ -94,6 +94,8 @@ public class Configuration {
 	private float minFit = 0.0F;
 	/** maximum fitness threshold for replication */
 	private float maxFit = 0.0F;
+	/** flag to indicate if population traces should be written */
+	private boolean tracePop = false;
 	
 	/** Options from the command line or options file */
 	private HashMap<String,String> options = new HashMap<String,String>();
@@ -157,6 +159,7 @@ public class Configuration {
 			}
 		}
 		if(options.containsKey("rho")) rho = Float.parseFloat(options.get("rho"));
+		if(options.containsKey("tracepop")) tracePop = Boolean.parseBoolean(options.get("tracepop"));
 		
 		// generate the replication landscape
 		landscape = new Landscape(this);
@@ -214,6 +217,7 @@ public class Configuration {
 		System.out.println("\t-s value  : starting random number seed [32767]");
 		System.out.println("\t-v value  : show simulation progress every value steps [10]");
 		System.out.println("\t-trace value  : write out a trace of the simulation {TSV|CSV|NONE} [NONE]");
+		System.out.println("\t-tracepop value  : write out intermediate populations during simulation {false|true} [false]");
 		System.out.println("\t-a file   : use landscape from file instead of generating a random landscape for shocks [null]");
 		System.out.println("\t-shocks {[Gen shock] ... } value : Do a shock selection after given generations [null]" );
 		System.out.println("\t-sseed value : random number generator seed for shocks [79]" );
@@ -472,6 +476,14 @@ public class Configuration {
 	 */
 	public int progressIndicator(){
 		return progress;
+	}
+	
+	/**
+	 * Check if population trace needs to be written
+	 * @return - true if population trace needs to be generated
+	 */
+	public boolean tracePopulation() {
+		return tracePop;
 	}
 	
 	/* 

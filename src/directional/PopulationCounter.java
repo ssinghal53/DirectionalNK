@@ -409,6 +409,15 @@ public class PopulationCounter implements Population {
 		return;
 	}
 	
+	public void writePopulation(PrintStream out) {
+		Iterator<Integer> iter = genomes.stream().iterator();
+		while(iter.hasNext()){
+			int g = iter.next();
+			out.println(String.format("%d %d %d %f %f", generation, g,count[g], fitness[g], shockFitness[g]));
+		}
+		return;
+	}
+	
 	/**
 	 * Write the current population to a file
 	 * @param outputFile - file to write

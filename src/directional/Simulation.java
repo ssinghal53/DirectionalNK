@@ -25,6 +25,8 @@ import java.io.PrintStream;
 public class Simulation {
 	/** Print stream to write statistics */
 	private PrintStream out = null;
+	/** Print stream to write detailed population */
+	private PrintStream popout = null;
 	/** Configuration to use */
 	private Configuration config;
 	/** Population to use in the simulation */
@@ -61,11 +63,16 @@ public class Simulation {
 			out = new PrintStream(new File(statsFile));
 			out.println("gen population uniques average stdev diversity evenness max cutoff shockAvg shockStd shockMax shockCut"); //header for file
 
+			boolean tracePopulation = config.tracePopulation();
+			if(tracePopulation) popout = new PrintStream(new File(config.getFileName("popt-")));
+			
+			
 			// run through the population
 			if(progress > 0) System.out.println("gen   population uniques   average  stdev diversity evenness cutoff maxFit"); //header for console
 			int maxGenerations = config.getMaxGenerations();
 			writeStats();	// write the initial population statistics
 			while(pop.getGeneration() <= maxGenerations){
+				if(tracePopulation) pop.writePopulation(popout);	// write out the population trace
 				// Check whether population is likely to go extinct this round; if so, write it out.
 				if(config.getShock(pop.getGeneration()+1) > pop.getMaxShockFit() || config.getCutoff(pop.getGeneration()+1) > pop.getMaxFit()){
 					pop.writePopulation();
@@ -92,6 +99,7 @@ public class Simulation {
 		} finally {
 			if(out != null) out.close();;
 			pop.close();
+			if(popout != null) popout.close();
 		}
 		return;
 	}

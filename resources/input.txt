@@ -24,6 +24,7 @@
 -s 29  								# starting random number seed [32767]
 -v 5								# show progress every v steps [10]
 -trace csv							# generate a simulation trace. By default, no trace is generated [csv|tsv|none] [NONE]
+-tracepop true						# trace population changes. By default, intermediate populations are not written [true|false] [false]
 
 # The following options describe shocks given to the population during the simulation
 -shocks {20 .5 30 .8}				# shock values [null] (0.5 after replication/selection at gen 20, .8 at gen 30)

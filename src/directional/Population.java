@@ -14,6 +14,8 @@
  */
 package directional;
 
+import java.io.PrintStream;
+
 /**
  * Interface implemented by population classes
  * @author Sharad Singhal
@@ -68,6 +70,11 @@ public interface Population {
 	 * write the population information to a file
 	 */
 	public void writePopulation();
+	
+	/**
+	 * write the population information to a file
+	 */
+	public void writePopulation(PrintStream outputStream);
 	
 	/**
 	 * read the population information from a file
