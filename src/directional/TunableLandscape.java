@@ -208,8 +208,14 @@ public class TunableLandscape {
 		return fitness;
 	}
 	
-	public void tune(int value, float fitness, float epsilon) {
-		float error = getFitness(value) - fitness;
+	/**
+	 * Tune the landscape to move a fitness value towards a goal
+	 * @param value genome value to adjust
+	 * @param desiredFitness - desired fitness
+	 * @param epsilon - movement rate
+	 */
+	public void tune(int value, float desiredFitness, float epsilon) {
+		float error = getFitness(value) - desiredFitness;	// error > 0 if current > desired
 		for(int i = 0; i < N; i++){
 			int gene = 0;
 			for(int j = K; j >=0; j--){
@@ -218,7 +224,7 @@ public class TunableLandscape {
 					gene |= 1;
 				}
 			}
-			// adjust the fitness table value for this gene
+			// adjust the fitness table value for this gene. Reduce weight if error > 0, increase otherwise
 			fitness_table[gene][i] *= (1.-epsilon * error);
 		}
 		return;
