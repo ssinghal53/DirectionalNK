@@ -51,7 +51,7 @@ public class Landscape {
 	private int maxGenomes;
 	/** Landscape file to use, if any */
 	private String landscapeFile;
-	/** Random number to use, if any */
+	/** Random number to use, if necessary */
 	private Random random = null;
 	/** Seed used to initialize the random number generator */
 	private long seed = 0;

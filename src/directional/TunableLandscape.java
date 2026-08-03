@@ -51,7 +51,7 @@ public class TunableLandscape {
 	private int maxGenomes;
 	/** Landscape file to use, if any */
 	private String landscapeFile;
-	/** Random number to use, if any */
+	/** Random number to use, if needed */
 	private Random random = null;
 	/** Seed used to initialize the random number generator */
 	private long seed = 0;
@@ -74,7 +74,7 @@ public class TunableLandscape {
 		this.K = K;
 		maxGenomes = (int)(Math.pow(2, N));
 		kMax = (int)Math.pow(2,K+1);
-		if(seed != 0) random = new Random(seed);
+		random = seed > 0 ? new Random(seed) : new Random();
 		epistasis_locations = new int[N][K+1];
 		fitness_table = new float[kMax][N];
 		// if we are not given a landscape, or if the landscape file cannot be read, create a random landscape
@@ -101,7 +101,7 @@ public class TunableLandscape {
 					if(i != N-1) candidates[i] = N-1;
 					for(int j = 1; j <= K; j++){
 						// we can select values located in candidates[0 ... N-j)
-						int ii = random != null ? random.nextInt(N-j) : (int) (Math.random()*(N-j));
+						int ii = random.nextInt(N-j);
 						epistasis_locations[i][j] = candidates[ii];
 						candidates[ii] = candidates[N-j-1];
 					}
@@ -113,7 +113,7 @@ public class TunableLandscape {
 			// create the fitness table
 			for(int i = 0; i < N; i++){
 				for(int j = 0; j < kMax; j++){
-					fitness_table[j][i] = (float) (random != null ? random.nextDouble() : Math.random());
+					fitness_table[j][i] = random.nextFloat();
 				}
 			}
 			// locate all peaks in the landscape
